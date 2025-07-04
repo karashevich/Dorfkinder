@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Map Reconstruction</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            touch-action: manipulation; /* Improves touch response */
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .map-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(2, auto);
+            gap: 2px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .map-part {
+            width: 100%;
+            height: auto;
+            display: none; /* Initially hidden */
+        }
+        .instructions {
+            text-align: center;
+            margin: 20px 0;
+            color: #555;
+        }
+        .tap-area {
+            width: 100%;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Map Reconstruction</h1>
+    <p class="instructions">Tap anywhere on the screen to reveal map parts one by one. Part 3 will appear last.</p>
+
+    <div class="map-container">
+        <!-- First row -->
+        <img src="parts/part_1.jpeg" alt="Map Part 1" class="map-part">
+        <img src="parts/part_2.jpeg" alt="Map Part 2" class="map-part">
+        <img src="parts/part_3.jpeg" alt="Map Part 3" class="map-part" id="part3">
+        <img src="parts/part_4.jpeg" alt="Map Part 4" class="map-part">
+        <img src="parts/part_5.jpeg" alt="Map Part 5" class="map-part">
+
+        <!-- Second row -->
+        <img src="parts/part_6.jpeg" alt="Map Part 6" class="map-part">
+        <img src="parts/part_7.jpeg" alt="Map Part 7" class="map-part">
+        <img src="parts/part_8.jpeg" alt="Map Part 8" class="map-part">
+        <img src="parts/part_9.jpeg" alt="Map Part 9" class="map-part">
+        <img src="parts/part_10.jpeg" alt="Map Part 10" class="map-part">
+    </div>
+
+    <div class="tap-area"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mapParts = document.querySelectorAll('.map-part');
+            const part3 = document.getElementById('part3');
+            const tapArea = document.querySelector('.tap-area');
+            let currentPart = 0;
+
+            // Create a custom order array with part3 as the last element
+            const customOrder = [];
+            mapParts.forEach(part => {
+                if (part !== part3) {
+                    customOrder.push(part);
+                }
+            });
+            // Add part3 as the last element
+            customOrder.push(part3);
+
+            // Function to show the next part
+            function showNextPart() {
+                if (currentPart < customOrder.length) {
+                    customOrder[currentPart].style.display = 'block';
+                    currentPart++;
+
+                    // Update instructions
+                    const instructions = document.querySelector('.instructions');
+                    if (currentPart === customOrder.length) {
+                        instructions.textContent = 'All parts revealed! The map is complete.';
+                        tapArea.remove(); // Remove tap area when all parts are shown
+                    } else {
+                        const nextPartNumber = customOrder[currentPart] === part3 ? 3 : 
+                            parseInt(customOrder[currentPart].alt.match(/\d+/)[0]);
+                        instructions.textContent = `Tap to reveal part ${nextPartNumber} of ${customOrder.length}. ${customOrder.length - currentPart} parts remaining.`;
+                    }
+                }
+            }
+
+            // Event listeners for both click and touch
+            tapArea.addEventListener('click', showNextPart);
+            tapArea.addEventListener('touchstart', function(e) {
+                e.preventDefault(); // Prevent default touch behavior
+                showNextPart();
+            });
+
+            // Initialize instructions
+            const firstPartNumber = parseInt(customOrder[0].alt.match(/\d+/)[0]);
+            document.querySelector('.instructions').textContent = `Tap to reveal part ${firstPartNumber} of ${customOrder.length}. ${customOrder.length} parts remaining.`;
+        });
+    </script>
+</body>
+</html>
